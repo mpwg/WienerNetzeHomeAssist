@@ -299,12 +299,12 @@ Defines integration metadata, dependencies, and configuration.
 {
   "domain": "wiener_netze",
   "name": "Wiener Netze Smart Meter",
-  "codeowners": ["@yourusername"],
+  "codeowners": ["@mpwg"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/yourusername/WienerNetzeHomeAssist",
+  "documentation": "https://github.com/mpwg/WienerNetzeHomeAssist",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/yourusername/WienerNetzeHomeAssist/issues",
+  "issue_tracker": "https://github.com/mpwg/WienerNetzeHomeAssist/issues",
   "requirements": ["aiohttp>=3.9.0"],
   "version": "1.0.0"
 }
