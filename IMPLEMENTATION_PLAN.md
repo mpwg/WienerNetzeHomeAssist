@@ -32,11 +32,82 @@ This document outlines the implementation plan for a Home Assistant custom integ
 
 ## Project Scope
 
+### Prerequisites
+
+**API Access Requirements:**
+
+Before using this integration, users must complete the following steps to obtain API credentials:
+
+#### 1. Register at WSTW API Portal
+
+- **Portal URL**: https://test-api.wienerstadwerke.at/portal/
+- Click the **"Sign In"** button on the portal homepage
+- Fill in your personal information
+- Review and accept the terms of use
+- Follow password security guidelines
+- Confirm your email address via the confirmation link sent to you
+- After login, you'll see the dashboard with three main sections:
+  - **API-Katalog**: Overview of all WSTW API collections
+  - **API Ausprobieren**: Manage your API applications
+  - **API-Einblicke**: Statistics and analytics for API usage
+
+#### 2. Create API Application
+
+Three ways to create an application:
+
+- Through "API ausprobieren" (Try API)
+- Through "API-Katalog" → Select WN Smart Meter API → Click "Anwenden"
+- Through Profile dropdown → "Anwendungen verwalten"
+
+When creating:
+
+- Select Phase (Environment): **PROD**
+- Select API Collection: **WN Smart Meter API**
+- Provide Application Name and Description
+- Callback URL is automatically assigned to: `https://test-api.wienerstadwerke.at/portal/rest/v1/oauth/callback`
+
+After successful creation (status changes from INAKTIV to LIVE), you'll receive an email with:
+
+- **API Key** (x-Gateway-APIKey): e.g., `d4ba6184-ca88-4246-a182-14da305d1520`
+- **Client ID**: Individually provided
+- **Client Secret**: Individually provided
+- **⚠️ Keep these credentials confidential!**
+
+#### 3. Register in Smart Meter Webportal
+
+- Create an account at the Smart Meter Webportal
+- Ensure you have active metering points with available data
+- This is required to link your API application with your metering data
+
+#### 4. Link API Application with Smart Meter Webportal
+
+Prerequisites for linking:
+
+1. Successfully registered in WSTW API Portal
+2. Created an API application (or have access to one)
+3. Registered in Smart Meter Webportal with available data
+
+**Linking Process**:
+
+- Send email to `support.sm-portal@wienit.at`
+- Email template available in portal under "API-Dokumentation"
+- Include:
+  - Your API application name
+  - Your Smart Meter Webportal email address
+- Support team will create unique Client-ID and Client-Secret linked to your account
+- After setup, view your credentials in Smart Meter Business Portal:
+  - Navigate to: **Anlagendaten** → **Vertragsverbindung hinzufügen/entfernen** → **API**
+
+**Note**: Multiple Smart Meter Webportal profiles can be linked to one API application.
+
+**The integration will provide clear setup instructions and links to guide users through this process.**
+
 ### In Scope
 
 ✅ **Core Features:**
 
-- OAuth2 authentication with Wiener Netze API
+- OAuth2 client credentials authentication with Wiener Netze API
+- Dual authentication (OAuth2 Bearer token + API Key header)
 - Automatic discovery and setup of available metering points
 - Real-time energy consumption sensors
 - Historical data retrieval (15-minute, hourly, daily, monthly, yearly intervals)
@@ -81,39 +152,39 @@ This document outlines the implementation plan for a Home Assistant custom integ
 ┌─────────────────────────────────────────────────────────────┐
 │                     Home Assistant                          │
 │                                                             │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │         Wiener Netze Integration                    │  │
-│  │                                                     │  │
-│  │  ┌──────────────┐      ┌────────────────────────┐ │  │
-│  │  │ Config Flow  │      │   Data Coordinator     │ │  │
-│  │  │  (OAuth2)    │      │  (Update Handler)      │ │  │
-│  │  └──────────────┘      └────────────────────────┘ │  │
-│  │         │                        │                 │  │
-│  │         │                        │                 │  │
-│  │  ┌──────▼────────────────────────▼──────────────┐ │  │
-│  │  │           API Client Library                 │ │  │
-│  │  │  (Authentication, Rate Limiting, Caching)    │ │  │
-│  │  └──────────────────────────────────────────────┘ │  │
-│  │         │                                          │  │
-│  └─────────┼──────────────────────────────────────────┘  │
-│            │                                              │
-│  ┌─────────▼──────────────────────────────────────────┐  │
-│  │              Sensor Entities                       │  │
-│  │  • Current Consumption  • Daily Total              │  │
-│  │  • Meter Reading       • Historical Data          │  │
-│  └────────────────────────────────────────────────────┘  │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │         Wiener Netze Integration                    │    │
+│  │                                                     │    │
+│  │  ┌──────────────┐      ┌────────────────────────┐   │    │
+│  │  │ Config Flow  │      │   Data Coordinator     │   │    │
+│  │  │  (OAuth2)    │      │  (Update Handler)      │   │    │
+│  │  └──────────────┘      └────────────────────────┘   │    │
+│  │         │                        │                  │.   │
+│  │         │                        │                  │    │
+│  │  ┌──────▼────────────────────────▼──────────────┐   │    │
+│  │  │           API Client Library                 │   │    │
+│  │  │  (Authentication, Rate Limiting, Caching)    │   │    │
+│  │  └──────────────────────────────────────────────┘   │    │
+│  │         │                                           │.   │
+│  └─────────┼───────────────────────────────────────────┘    │
+│            │                                                │
+│  ┌─────────▼──────────────────────────────────────────┐     │
+│  │              Sensor Entities                       │     │
+│  │  • Current Consumption  • Daily Total              │     │
+│  │  • Meter Reading       • Historical Data           │     │
+│  └────────────────────────────────────────────────────┘     │
 └─────────────────────────────────────────────────────────────┘
                            │
                            │ HTTPS / OAuth2
                            │
 ┌──────────────────────────▼──────────────────────────────────┐
 │              Wiener Netze Smart Meter API                   │
-│      https://api.wstw.at/gateway/WN_SMART_METER_API/1.0    │
+│      https://api.wstw.at/gateway/WN_SMART_METER_API/1.0     │
 │                                                             │
-│  • /zaehlpunkte              (List metering points)        │
-│  • /zaehlpunkte/{id}         (Get specific meter)          │
-│  • /zaehlpunkte/messwerte    (Get consumption data)        │
-│  • /zaehlpunkte/{id}/messwerte (Get meter-specific data)   │
+│  • /zaehlpunkte              (List metering points)         │
+│  • /zaehlpunkte/{id}         (Get specific meter)           │
+│  • /zaehlpunkte/messwerte    (Get consumption data)         │
+│  • /zaehlpunkte/{id}/messwerte (Get meter-specific data)    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -151,9 +222,15 @@ This document outlines the implementation plan for a Home Assistant custom integ
 **Endpoint:** `GET /zaehlpunkte`
 **Parameters:**
 
-- `resultType` (optional)
-- `zaehlpunkt` (optional) - Filter by specific meter
+- `resultType` (optional) - Values: `ALL` or `SMARTMETER`
+- `zaehlpunkt` (optional, repeatable) - Filter by specific meter(s)
 - `webProfileId` (optional)
+
+**Headers:**
+
+- `Authorization: Bearer {access_token}`
+- `x-Gateway-APIKey: {api_key}`
+- `Accept: application/json`
 
 **Use Case:** Initial setup to discover available meters
 
@@ -179,16 +256,22 @@ This document outlines the implementation plan for a Home Assistant custom integ
 **Endpoint:** `GET /zaehlpunkte/messwerte`
 **Required Parameters:**
 
-- `datumVon` - Start date
-- `datumBis` - End date
-- `wertetyp` - Value type (15MIN, HOUR, DAY, MONTH, YEAR)
+- `datumVon` - Start date (format: "YYYY-MM-DD")
+- `datumBis` - End date (format: "YYYY-MM-DD")
+- `wertetyp` - Value type: "QUARTER_HOUR", "DAY", or "METER_READ"
 
 **Optional Parameters:**
 
 - `zaehlpunkt` - Filter by specific meter
-- `webProfileId`
+- `resultType` - "SMART_METER" or "ALL" (includes Ferraris meters)
 
 **Use Case:** Batch retrieval for multiple meters
+
+**Note:** Per PDF documentation, wertetyp controls granularity:
+
+- "QUARTER_HOUR": 15-minute interval data
+- "DAY": Daily consumption values
+- "METER_READ": Actual meter readings (Zählerstand)
 
 #### 4. Get Consumption Data (Specific Meter)
 
@@ -196,9 +279,9 @@ This document outlines the implementation plan for a Home Assistant custom integ
 **Required Parameters:**
 
 - `zaehlpunkt` (path) - Meter ID
-- `datumVon` - Start date
-- `datumBis` - End date
-- `wertetyp` - Value type
+- `datumVon` - Start date (format: "YYYY-MM-DD")
+- `datumBis` - End date (format: "YYYY-MM-DD")
+- `wertetyp` - Value type: "QUARTER_HOUR", "DAY", or "METER_READ"
 
 **Response Structure:**
 
@@ -224,27 +307,50 @@ This document outlines the implementation plan for a Home Assistant custom integ
 
 **Use Case:** Regular sensor updates
 
+**Quality Indicators (`qualitaet` field):**
+
+- `VAL` - Validated actual value (tatsächlicher Wert)
+- `EST` - Estimated/calculated value (geschätzter/berechneter Wert)
+
 ### Data Types (wertetyp)
 
-- `15MIN` - 15-minute intervals (most granular)
-- `HOUR` - Hourly data
+Per API documentation, the following values are supported:
+
+- `QUARTER_HOUR` - 15-minute intervals (most granular)
 - `DAY` - Daily totals
-- `MONTH` - Monthly totals
-- `YEAR` - Yearly totals
+- `METER_READ` - Actual meter readings (Zählerstand)
+
+Note: The PDF documentation specifies these exact values. The OpenAPI spec may show different values (15MIN, HOUR, MONTH, YEAR) but the actual API accepts QUARTER_HOUR, DAY, and METER_READ.
 
 ### Authentication
 
-**Type:** OAuth2
+**Type:** OAuth2 with API Key
 **Security Schemes:**
 
-- `x-Gateway-APIKey` - API Key in header
-- `OAUTH2` - OAuth2 flow
+- `x-Gateway-APIKey` - API Key in header (required for all requests)
+- `OAuth2` - Client credentials flow with Bearer token
+
+**OAuth2 Details:**
+
+- **Token URL:** `https://log.wien/auth/realms/logwien/protocol/openid-connect/token`
+- **Grant Type:** `client_credentials`
+- **Token Type:** Bearer
+- **Content-Type:** `application/x-www-form-urlencoded`
 
 **Requirements:**
 
-- Client credentials (to be obtained from Wiener Netze)
+- Client ID and Client Secret (obtained from Wiener Netze)
+- API Key (separate from OAuth2 credentials)
 - Token refresh mechanism
-- Secure storage of tokens in Home Assistant
+- Secure storage of credentials and tokens in Home Assistant
+- Both OAuth2 Bearer token AND API key must be included in all API requests
+
+**Registration Process:**
+
+Users must request API access by emailing `support.sm-portal@wienit.at` with:
+
+- Application name from WSTW Developer Portal
+- Smart Meter Portal email address
 
 ---
 
@@ -317,10 +423,28 @@ Central location for all constants.
 ```python
 DOMAIN = "wiener_netze"
 CONF_METER_POINTS = "meter_points"
+CONF_API_KEY = "api_key"
+CONF_CLIENT_ID = "client_id"
+CONF_CLIENT_SECRET = "client_secret"
 DEFAULT_UPDATE_INTERVAL = 15  # minutes
+
+# API Endpoints
 API_BASE_URL = "https://api.wstw.at/gateway/WN_SMART_METER_API/1.0"
-OAUTH_AUTHORIZE_URL = "..."
-OAUTH_TOKEN_URL = "..."
+OAUTH_TOKEN_URL = "https://log.wien/auth/realms/logwien/protocol/openid-connect/token"
+OAUTH_GRANT_TYPE = "client_credentials"
+
+# Portal URLs (for user documentation)
+API_PORTAL_URL = "https://test-api.wienerstadwerke.at/portal/"
+API_PORTAL_CALLBACK = "https://test-api.wienerstadwerke.at/portal/rest/v1/oauth/callback"
+
+# Data granularity options (wertetyp parameter)
+GRANULARITY_QUARTER_HOUR = "QUARTER_HOUR"
+GRANULARITY_DAY = "DAY"
+GRANULARITY_METER_READ = "METER_READ"
+
+# Result type options
+RESULT_TYPE_ALL = "ALL"
+RESULT_TYPE_SMART_METER = "SMART_METER"
 ```
 
 #### `api.py`
@@ -372,10 +496,12 @@ User-friendly configuration flow.
 
 **Steps:**
 
-1. OAuth2 authentication
-2. Meter selection (if multiple available)
-3. Configuration confirmation
-4. Options for update interval
+1. User provides Client ID, Client Secret, and API Key
+2. System authenticates via OAuth2 client credentials flow
+3. Retrieve available metering points (Zählpunkte)
+4. User selects which meters to monitor (if multiple available)
+5. Configuration confirmation
+6. Options for update interval and data granularity
 
 ---
 
@@ -392,26 +518,45 @@ User-friendly configuration flow.
 **Tasks:**
 
 1. Create directory structure and files
-2. Set up development environment
-3. Implement `api.py` with basic HTTP client
-4. Implement OAuth2 authentication in `oauth2.py`
-5. Create `manifest.json` and `const.py`
-6. Write initial unit tests for API client
-7. Document API client usage
+2. Set up development environment with test credentials
+3. Implement `api.py` with basic HTTP client using aiohttp
+4. Implement OAuth2 client credentials flow in `oauth2.py`
+   - Token endpoint: `https://log.wien/auth/realms/logwien/protocol/openid-connect/token`
+   - Grant type: `client_credentials`
+   - Content-Type: `application/x-www-form-urlencoded`
+5. Implement dual authentication (OAuth2 + API Key)
+   - Add `Authorization: Bearer {token}` header
+   - Add `x-Gateway-APIKey: {api_key}` header
+6. Create `manifest.json` and `const.py` with correct URLs
+7. Implement token caching and refresh logic
+8. Write initial unit tests for API client
+9. Document API client usage and authentication flow
 
 **Deliverables:**
 
-- ✅ Working API client that can authenticate
-- ✅ Ability to fetch metering points
-- ✅ Basic error handling
+- ✅ Working API client that can authenticate with both OAuth2 and API Key
+- ✅ Ability to fetch metering points with proper headers
+- ✅ Token refresh mechanism
+- ✅ Comprehensive error handling for all API status codes
 - ✅ Unit tests with >80% coverage
 
 **Acceptance Criteria:**
 
-- API client successfully authenticates with Wiener Netze
-- Can retrieve list of metering points
-- All HTTP errors are properly caught and handled
-- Tests pass
+- API client successfully obtains OAuth2 token from log.wien
+- All requests include both Bearer token and API Key headers
+- Can retrieve list of metering points with resultType parameter
+- Token is automatically refreshed when expired
+- All HTTP errors are properly caught and handled with descriptive messages
+- Tests pass with mocked API responses
+
+**HTTP Status Codes to Handle** (per API documentation):
+
+- `200 OK` - Successful request
+- `400 Bad Request` - Incorrect query syntax or missing required parameters
+- `403 Forbidden` - User not authorized to access resource
+- `404 Not Found` - API resource not found
+- `408 Request Timeout` - Request took too long to complete
+- `500 Internal Server Error` - Unexpected server error
 
 ---
 
@@ -420,18 +565,21 @@ User-friendly configuration flow.
 **Objectives:**
 
 - Create user-friendly setup experience
-- Handle OAuth2 flow in Home Assistant
+- Handle OAuth2 client credentials flow in Home Assistant
 - Allow meter selection
 
 **Tasks:**
 
-1. Implement `config_flow.py` with OAuth2 flow
-2. Create user steps for authentication
-3. Implement meter selection interface
-4. Add options flow for update interval
-5. Create translations (`strings.json`, `en.json`, `de.json`)
-6. Write config flow tests
-7. Test with actual Home Assistant instance
+1. Implement `config_flow.py` with OAuth2 client credentials flow
+2. Create user input form for Client ID, Client Secret, and API Key
+3. Implement automatic meter discovery after authentication
+4. Implement meter selection interface (multi-select)
+5. Add options flow for update interval and data granularity
+6. Add validation for credentials during setup
+7. Create translations (`strings.json`, `en.json`, `de.json`)
+8. Include setup instructions for obtaining API credentials
+9. Write config flow tests
+10. Test with actual Home Assistant instance
 
 **Deliverables:**
 
@@ -883,9 +1031,14 @@ User-friendly configuration flow.
 ### Development
 
 - Python 3.11+ environment
-- Home Assistant test instance
-- Wiener Netze API access credentials
+- Home Assistant test instance (2024.1+)
+- Wiener Netze API access credentials:
+  - Client ID
+  - Client Secret
+  - API Key
+  - Test Zählpunkt (metering point ID)
 - GitHub repository
+- Access to WSTW Developer Portal for credential management
 
 ### Tools
 
@@ -935,15 +1088,31 @@ User-friendly configuration flow.
 
 ```yaml
 # Example configuration.yaml (for YAML-based config, if supported)
+# NOTE: Config flow (UI-based configuration) is recommended
 wiener_netze:
   client_id: YOUR_CLIENT_ID
   client_secret: YOUR_CLIENT_SECRET
+  api_key: YOUR_API_KEY
   meter_points:
     - AT0010000000000000001000000000001
     - AT0010000000000000001000000000002
   update_interval: 15 # minutes
-  data_granularity: "15MIN"
+  data_granularity: "QUARTER_HOUR" # Options: QUARTER_HOUR, DAY, METER_READ
+  result_type: "SMART_METER" # Options: ALL, SMART_METER
 ```
+
+### How to Obtain API Credentials
+
+1. **Register at WSTW Developer Portal**: https://api.wstw.at/
+2. **Create an Application** in the developer portal
+3. **Request API Access** by emailing `support.sm-portal@wienit.at` with:
+   - Your application name from the WSTW Developer Portal
+   - Your Smart Meter Portal email address
+4. **Receive Credentials**: You will receive:
+   - Client ID
+   - Client Secret
+   - API Key
+5. **Configure Integration**: Enter these credentials in Home Assistant during setup
 
 ### C. API Rate Limits (To Be Determined)
 
@@ -963,13 +1132,17 @@ Common OBIS codes in Wiener Netze responses:
 
 ### E. Error Codes
 
-| Code | Meaning      | Action                      |
-| ---- | ------------ | --------------------------- |
-| 400  | Bad Request  | Validate request parameters |
-| 401  | Unauthorized | Refresh OAuth token         |
-| 403  | Forbidden    | Check API permissions       |
-| 404  | Not Found    | Verify meter ID             |
-| 500  | Server Error | Retry with backoff          |
+Per API documentation, handle these HTTP status codes:
+
+| Code | Meaning               | Description                                       | Action                      |
+| ---- | --------------------- | ------------------------------------------------- | --------------------------- |
+| 200  | OK                    | Request successful                                | Process response data       |
+| 400  | Bad Request           | Incorrect query syntax or missing required params | Validate request parameters |
+| 401  | Unauthorized          | Invalid or expired token                          | Refresh OAuth token         |
+| 403  | Forbidden             | User not authorized to access resource            | Check API permissions       |
+| 404  | Not Found             | API resource not found                            | Verify meter ID/endpoint    |
+| 408  | Request Timeout       | Request took too long                             | Retry with timeout handling |
+| 500  | Internal Server Error | Unexpected server error                           | Retry with backoff          |
 
 ### F. Development Timeline (Gantt Chart)
 
