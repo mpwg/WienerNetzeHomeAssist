@@ -16,9 +16,17 @@ from custom_components.wiener_netze.api import (
     WienerNetzeNotFoundError,
     WienerNetzeRateLimitError,
     WienerNetzeTimeoutError,
+    calculate_total_consumption,
+    extract_all_readings,
     format_meter_point_address,
+    get_date_range_for_last_days,
+    get_date_range_for_today,
+    get_date_range_for_yesterday,
     get_meter_point_id,
+    get_validated_readings,
+    parse_consumption_timestamp,
 )
+from custom_components.wiener_netze.const import GRANULARITY_QUARTER_HOUR
 from tests.utils import load_json_fixture
 
 
@@ -546,3 +554,204 @@ class TestMeterPoints:
         result = get_meter_point_id(meter_point)
 
         assert result == "AT0010000000000000001000000000001"
+
+
+class TestConsumptionData:
+    """Tests for consumption data retrieval."""
+
+    async def test_get_consumption_data_quarter_hour(self, api_client, mock_session):
+        """Test consumption data retrieval with 15-minute intervals."""
+        api_client._access_token = "test_token"
+        api_client._token_expires_at = datetime.now() + timedelta(hours=1)
+
+        consumption_data = load_json_fixture("consumption_quarter_hour.json")
+
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json = AsyncMock(return_value=consumption_data)
+        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
+
+        result = await api_client.get_consumption_data(
+            meter_point="AT0010000000000000001000000000001",
+            date_from="2024-11-10",
+            date_to="2024-11-10",
+            granularity=GRANULARITY_QUARTER_HOUR,
+        )
+
+        assert result["zaehlpunkt"] == "AT0010000000000000001000000000001"
+        assert len(result["zaehlwerke"]) == 1
+        assert result["zaehlwerke"][0]["obisCode"] == "1-1:1.8.0"
+        assert len(result["zaehlwerke"][0]["messwerte"]) == 3
+        assert result["zaehlwerke"][0]["messwerte"][0]["messwert"] == 0.15
+        assert result["zaehlwerke"][0]["messwerte"][0]["qualitaet"] == "VAL"
+
+    async def test_get_consumption_data_with_params(self, api_client, mock_session):
+        """Test consumption data retrieval with correct query parameters."""
+        api_client._access_token = "test_token"
+        api_client._token_expires_at = datetime.now() + timedelta(hours=1)
+
+        consumption_data = load_json_fixture("consumption_quarter_hour.json")
+
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json = AsyncMock(return_value=consumption_data)
+        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
+
+        await api_client.get_consumption_data(
+            meter_point="AT0010000000000000001000000000001",
+            date_from="2024-11-10",
+            date_to="2024-11-11",
+            granularity="DAY",
+        )
+
+        # Verify the request was made with correct parameters
+        call_args = mock_session.request.call_args
+        assert "params" in call_args.kwargs
+        params = call_args.kwargs["params"]
+        assert params["datumVon"] == "2024-11-10"
+        assert params["datumBis"] == "2024-11-11"
+        assert params["wertetyp"] == "DAY"
+
+    async def test_get_consumption_data_not_found(self, api_client, mock_session):
+        """Test consumption data retrieval with invalid meter point."""
+        api_client._access_token = "test_token"
+        api_client._token_expires_at = datetime.now() + timedelta(hours=1)
+
+        mock_response = AsyncMock()
+        mock_response.status = 404
+        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
+
+        with pytest.raises(WienerNetzeNotFoundError):
+            await api_client.get_consumption_data(
+                meter_point="INVALID",
+                date_from="2024-11-10",
+                date_to="2024-11-10",
+            )
+
+    async def test_get_consumption_data_empty(self, api_client, mock_session):
+        """Test consumption data retrieval with no readings."""
+        api_client._access_token = "test_token"
+        api_client._token_expires_at = datetime.now() + timedelta(hours=1)
+
+        empty_data = {
+            "zaehlpunkt": "AT0010000000000000001000000000001",
+            "zaehlwerke": [],
+        }
+
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json = AsyncMock(return_value=empty_data)
+        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
+
+        result = await api_client.get_consumption_data(
+            meter_point="AT0010000000000000001000000000001",
+            date_from="2024-11-10",
+            date_to="2024-11-10",
+        )
+
+        assert len(result["zaehlwerke"]) == 0
+
+    def test_calculate_total_consumption(self):
+        """Test total consumption calculation."""
+        readings = [
+            {"messwert": 0.15, "qualitaet": "VAL", "zeitVon": "", "zeitBis": ""},
+            {"messwert": 0.12, "qualitaet": "VAL", "zeitVon": "", "zeitBis": ""},
+            {"messwert": 0.18, "qualitaet": "EST", "zeitVon": "", "zeitBis": ""},
+        ]
+
+        total = calculate_total_consumption(readings)
+
+        assert abs(total - 0.45) < 0.0001  # Use approximate comparison for floats
+
+    def test_calculate_total_consumption_with_integers(self):
+        """Test total consumption calculation with integer values."""
+        readings = [
+            {"messwert": 1, "qualitaet": "VAL", "zeitVon": "", "zeitBis": ""},
+            {"messwert": 2, "qualitaet": "VAL", "zeitVon": "", "zeitBis": ""},
+            {"messwert": 3, "qualitaet": "EST", "zeitVon": "", "zeitBis": ""},
+        ]
+
+        total = calculate_total_consumption(readings)
+
+        assert total == 6.0
+
+    def test_get_validated_readings(self):
+        """Test filtering validated readings."""
+        readings = [
+            {"messwert": 0.15, "qualitaet": "VAL", "zeitVon": "", "zeitBis": ""},
+            {"messwert": 0.12, "qualitaet": "VAL", "zeitVon": "", "zeitBis": ""},
+            {"messwert": 0.18, "qualitaet": "EST", "zeitVon": "", "zeitBis": ""},
+        ]
+
+        validated = get_validated_readings(readings)
+
+        assert len(validated) == 2
+        assert all(r["qualitaet"] == "VAL" for r in validated)
+        assert sum(float(r["messwert"]) for r in validated) == 0.27
+
+    def test_extract_all_readings(self):
+        """Test extracting all readings from consumption data."""
+        consumption_data = load_json_fixture("consumption_quarter_hour.json")
+
+        readings = extract_all_readings(consumption_data)
+
+        assert len(readings) == 3
+        assert readings[0]["messwert"] == 0.15
+        assert readings[1]["messwert"] == 0.12
+        assert readings[2]["messwert"] == 0.18
+
+    def test_get_date_range_for_today(self):
+        """Test date range for today."""
+        date_from, date_to = get_date_range_for_today()
+
+        assert date_from == date_to
+        assert len(date_from) == 10  # YYYY-MM-DD format
+        assert date_from.count("-") == 2
+
+    def test_get_date_range_for_yesterday(self):
+        """Test date range for yesterday."""
+        date_from, date_to = get_date_range_for_yesterday()
+
+        assert date_from == date_to
+        assert len(date_from) == 10  # YYYY-MM-DD format
+
+        # Verify it's actually yesterday
+        from datetime import date as date_class
+
+        yesterday = date_class.today() - timedelta(days=1)
+        assert date_from == yesterday.isoformat()
+
+    def test_get_date_range_for_last_days(self):
+        """Test date range for last N days."""
+        date_from, date_to = get_date_range_for_last_days(7)
+
+        from_date = datetime.fromisoformat(date_from).date()
+        to_date = datetime.fromisoformat(date_to).date()
+
+        # 7 days means from 6 days ago to today (inclusive)
+        assert (to_date - from_date).days == 6
+
+    def test_parse_consumption_timestamp(self):
+        """Test parsing ISO 8601 timestamp."""
+        timestamp = "2024-11-10T00:15:00.000+01:00"
+
+        result = parse_consumption_timestamp(timestamp)
+
+        assert isinstance(result, datetime)
+        assert result.year == 2024
+        assert result.month == 11
+        assert result.day == 10
+        assert result.hour == 0
+        assert result.minute == 15

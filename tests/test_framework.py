@@ -32,8 +32,10 @@ def test_load_consumption_fixture():
     """Test loading consumption fixture."""
     data = load_json_fixture("consumption_quarter_hour.json")
     assert isinstance(data, dict)
-    assert "werte" in data
-    assert len(data["werte"]) == 2
+    assert "zaehlpunkt" in data
+    assert "zaehlwerke" in data
+    assert len(data["zaehlwerke"]) == 1
+    assert len(data["zaehlwerke"][0]["messwerte"]) == 3
 
 
 def test_mock_config_entry_fixture(mock_config_entry):
