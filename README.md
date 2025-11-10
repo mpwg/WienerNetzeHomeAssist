@@ -16,30 +16,42 @@ Home Assistant integration for Wiener Netze Smart Meters, providing real-time en
 
 ## Installation
 
-### HACS (Recommended)
+### Prerequisites
 
-1. Add this repository as a custom repository in HACS
-2. Search for "Wiener Netze Smart Meter"
-3. Install the integration
-4. Restart Home Assistant
+Before installing this integration, you need:
+
+1. **Wiener Netze Smart Meter** installed and active
+2. **API Credentials** from [WSTW API Portal](https://test-api.wienerstadwerke.at/portal/)
+3. **HACS** installed in Home Assistant ([HACS Installation Guide](https://hacs.xyz/docs/setup/download))
+
+### HACS Installation (Recommended)
+
+1. Open HACS in Home Assistant
+2. Click on "Integrations"
+3. Click the three dots in the top right corner
+4. Select "Custom repositories"
+5. Add this repository URL: `https://github.com/mpwg/WienerNetzeHomeAssist`
+6. Select category: "Integration"
+7. Click "Add"
+8. Find "Wiener Netze Smart Meter" in HACS
+9. Click "Download"
+10. Restart Home Assistant
 
 ### Manual Installation
 
-1. Copy the `custom_components/wiener_netze` directory to your Home Assistant `custom_components` directory
-2. Restart Home Assistant
+1. Download the latest release from [GitHub Releases](https://github.com/mpwg/WienerNetzeHomeAssist/releases)
+2. Extract the `custom_components/wiener_netze` directory
+3. Copy it to your Home Assistant `custom_components` directory
+4. Restart Home Assistant
 
 ## Configuration
 
-1. Go to Settings → Devices & Services
-2. Click "+ ADD INTEGRATION"
-3. Search for "Wiener Netze Smart Meter"
-4. Follow the configuration steps
+After installation:
 
-## Setup Requirements
-
-- Wiener Netze Smart Meter account
-- API credentials from WSTW API Portal
-- Active smart meter (Zählpunkt)
+1. Go to **Settings** → **Devices & Services**
+2. Click **"+ Add Integration"**
+3. Search for **"Wiener Netze Smart Meter"**
+4. Follow the configuration wizard
 
 For detailed setup instructions, see [SETUP.md](dokumentation/SETUP.md)
 
