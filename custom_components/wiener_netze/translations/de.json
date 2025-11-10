@@ -2,21 +2,30 @@
   "config": {
     "step": {
       "user": {
-        "title": "Wiener Netze Smart Meter",
-        "description": "Geben Sie Ihre Wiener Netze API-Zugangsdaten ein",
+        "title": "Wiener Netze Smart Meter Einrichtung",
+        "description": "Geben Sie Ihre API-Zugangsdaten vom WSTW API-Portal ein",
         "data": {
-          "username": "Benutzername",
-          "password": "Passwort"
+          "client_id": "OAuth2 Client-ID",
+          "client_secret": "OAuth2 Client-Secret",
+          "api_key": "API-Gateway-Schlüssel"
+        }
+      },
+      "meter_point": {
+        "title": "Zählpunkt auswählen",
+        "description": "Wählen Sie den Smart Meter (Zählpunkt) zur Überwachung aus",
+        "data": {
+          "meter_point": "Zählpunkt"
         }
       }
     },
     "error": {
-      "cannot_connect": "Verbindung fehlgeschlagen",
-      "invalid_auth": "Ungültige Authentifizierung",
-      "unknown": "Unerwarteter Fehler"
+      "invalid_auth": "Ungültige Zugangsdaten. Bitte überprüfen Sie Ihre Client-ID, Client-Secret und API-Schlüssel.",
+      "cannot_connect": "Verbindung zur Wiener Netze API nicht möglich. Bitte überprüfen Sie Ihre Internetverbindung.",
+      "no_meter_points": "Keine Smart Meter für dieses Konto gefunden.",
+      "unknown": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
     },
     "abort": {
-      "already_configured": "Gerät ist bereits konfiguriert"
+      "already_configured": "Dieser Zählpunkt ist bereits konfiguriert."
     }
   }
 }
