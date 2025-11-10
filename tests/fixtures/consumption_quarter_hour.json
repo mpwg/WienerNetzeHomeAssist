@@ -1,0 +1,20 @@
+{
+  "zaehlpunkt": "AT0000000000000000000000000000001",
+  "wertetyp": "QUARTER_HOUR",
+  "werte": [
+    {
+      "messwert": 0.25,
+      "qualitaet": "VAL",
+      "zeitVon": "2025-11-10T00:00:00+01:00",
+      "zeitBis": "2025-11-10T00:15:00+01:00",
+      "obisCode": "1-1:1.8.0"
+    },
+    {
+      "messwert": 0.3,
+      "qualitaet": "VAL",
+      "zeitVon": "2025-11-10T00:15:00+01:00",
+      "zeitBis": "2025-11-10T00:30:00+01:00",
+      "obisCode": "1-1:1.8.0"
+    }
+  ]
+}

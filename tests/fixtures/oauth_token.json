@@ -1,0 +1,6 @@
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlRlc3QgVXNlciIsImlhdCI6MTUxNjIzOTAyMn0.test_signature",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "smart-meter-api"
+}

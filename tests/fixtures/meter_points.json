@@ -1,0 +1,11 @@
+[
+  {
+    "zaehlpunktnummer": "AT0000000000000000000000000000001",
+    "geraet": {
+      "geraetenummer": "12345678"
+    },
+    "anlage": {
+      "anlagennummer": "AN123456"
+    }
+  }
+]
