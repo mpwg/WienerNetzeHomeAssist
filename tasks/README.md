@@ -14,56 +14,56 @@ This directory contains all implementation tasks for the Wiener Netze Smart Mete
 ### API Client Development (05-09)
 
 - ✅ Task 05: API Client - Basic Structure
+- ✅ Task 06: API Client - Meter Points Retrieval
+- ✅ Task 07: API Client - Consumption Data Retrieval
+- ⏸️ Task 08: API Client - Rate Limiting (skipped for now)
+- ⏸️ Task 09: API Client - Error Handling & Retry Logic (integrated in other tasks)
+
+### HA Integration Core (10-14)
+
+- ✅ Task 10: Integration Initialization (**init**.py)
+- ✅ Task 11: Config Flow Implementation
+- ✅ Task 12: Data Update Coordinator
+- ✅ Task 13: Strings and Translations Setup
+- ✅ Task 14: Device Registry Integration
+
+### Entity Platform (15-18)
+
+- 📝 Task 15: Sensor Platform Implementation
 
 ### Remaining Tasks to Create
 
-Run this script to generate remaining task files:
-
 ```bash
-# Create remaining API client tasks
-# Task 06: API Client - Meter Points Retrieval
-# Task 07: API Client - Consumption Data Retrieval
-# Task 08: API Client - Rate Limiting
-# Task 09: API Client - Error Handling & Retry Logic
+# Entity Platform tasks (continued)
+# Task 16: Create Additional Consumption Sensors (monthly, yearly)
+# Task 17: Create Historical Data Sensors
+# Task 18: Energy Dashboard Integration
 
-# Create HA Integration Core tasks
-# Task 10: Create manifest.json
-# Task 11: Implement __init__.py
-# Task 12: Create const.py
-# Task 13: Implement Config Flow
-# Task 14: Implement Data Update Coordinator
+# Localization tasks (already partially done in Task 13)
+# Task 19: Complete Translation Testing
+# Task 20: Add Translation Documentation
+# Task 21: Translation Maintenance Guide
 
-# Create Entity Platform tasks
-# Task 15: Implement Sensor Platform Base
-# Task 16: Create Consumption Sensors
-# Task 17: Create Power Sensors
-# Task 18: Implement Device Registry
+# Testing tasks
+# Task 22: Comprehensive API Client Tests
+# Task 23: Config Flow Integration Tests
+# Task 24: Coordinator Error Handling Tests
+# Task 25: Sensor Platform Tests
+# Task 26: End-to-End Integration Tests
 
-# Create Localization tasks
-# Task 19: Create strings.json
-# Task 20: Add German Translations
-# Task 21: Add English Translations
+# Documentation tasks
+# Task 27: User README and Setup Guide
+# Task 28: API Credentials Setup Documentation
+# Task 29: Troubleshooting Guide
+# Task 30: Developer Documentation
 
-# Create Testing tasks
-# Task 22: Write API Client Tests
-# Task 23: Write Config Flow Tests
-# Task 24: Write Coordinator Tests
-# Task 25: Write Sensor Tests
-# Task 26: Integration Tests
-
-# Create Documentation tasks
-# Task 27: Create User README
-# Task 28: Create Setup Guide
-# Task 29: Add Code Documentation
-# Task 30: Create Troubleshooting Guide
-
-# Create HACS Preparation tasks
+# HACS Preparation tasks
 # Task 31: Validate HACS Requirements
 # Task 32: Register with Home Assistant Brands
 # Task 33: Create GitHub Release Workflow
 # Task 34: Test HACS Installation
 
-# Create Release tasks
+# Release tasks
 # Task 35: Create First Release
 # Task 36: Set Up GitHub Actions CI/CD
 # Task 37: Create Maintenance Guidelines

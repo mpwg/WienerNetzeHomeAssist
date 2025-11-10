@@ -14,6 +14,7 @@ Successfully implemented the `WienerNetzeDataCoordinator` class to manage period
 The coordinator is implemented in `custom_components/wiener_netze/coordinator.py` and includes:
 
 1. **Data Update Coordinator Class**
+
    - Extends Home Assistant's `DataUpdateCoordinator`
    - Fetches data every 15 minutes (configurable via `DEFAULT_SCAN_INTERVAL`)
    - Manages multiple meter points simultaneously
@@ -65,9 +66,11 @@ CONF_METER_POINTS = "meter_points"
 Implemented comprehensive test coverage in `tests/test_coordinator.py` with 18 tests:
 
 1. **Initialization Tests**
+
    - Coordinator initialization with proper configuration
 
 2. **Update Tests**
+
    - Successful data updates for single and multiple meters
    - Authentication error handling
    - Connection error handling
@@ -89,6 +92,7 @@ Implemented comprehensive test coverage in `tests/test_coordinator.py` with 18 t
 ```
 
 All tests verify:
+
 - Proper data fetching and storage
 - Error handling and exception raising
 - Data access methods returning correct values
@@ -97,6 +101,7 @@ All tests verify:
 ### Test Coverage
 
 The test suite covers:
+
 - ✅ Normal operation flow
 - ✅ All error scenarios
 - ✅ Data structure edge cases
@@ -116,14 +121,17 @@ The test suite covers:
 ## Files Modified
 
 1. **custom_components/wiener_netze/coordinator.py**
+
    - Enhanced `_async_update_data()` to work with API response structure
    - Updated helper methods to handle `zaehlwerke` data structure
    - Fixed import to include `CONF_METER_POINTS`
 
 2. **custom_components/wiener_netze/const.py**
+
    - Added `CONF_METER_POINTS` constant
 
 3. **tests/test_coordinator.py**
+
    - Implemented complete test suite with 18 comprehensive tests
    - Added helper function `create_mock_config_entry()` for test data
    - Fixed test assertions to work with coordinator exception handling
@@ -142,14 +150,17 @@ The test suite covers:
 ## Integration Points
 
 ### With API Client (`api.py`)
+
 - Calls `get_consumption_data()` for each meter point
 - Handles all API exceptions appropriately
 
 ### With Config Flow (`config_flow.py`)
+
 - Reads meter points from config entry data
 - Uses `CONF_METER_POINTS` constant
 
 ### With Sensors (Future Task 15)
+
 - Provides `get_meter_data()` for full meter information
 - Provides `get_latest_reading()` for current values
 - Provides `get_total_consumption_today()` for daily totals
@@ -157,6 +168,7 @@ The test suite covers:
 ## API Usage
 
 The coordinator fetches data using:
+
 - **Endpoint**: `/zaehlpunkte/{meter_id}/messwerte`
 - **Granularity**: `QUARTER_HOUR` (15-minute intervals)
 - **Date Range**: Today's date (from midnight to now)
@@ -168,6 +180,7 @@ With the coordinator implemented, the next task is:
 → **Task 15: Sensor Platform Implementation**
 
 The coordinator is now ready to provide data to sensor entities that will expose:
+
 - Current consumption
 - Total daily consumption
 - Latest reading timestamp
@@ -176,6 +189,7 @@ The coordinator is now ready to provide data to sensor entities that will expose
 ## Verification
 
 ✅ All acceptance criteria met:
+
 - [x] Coordinator fetches data from API
 - [x] Updates every 15 minutes (configurable)
 - [x] Handles authentication errors (raises ConfigEntryAuthFailed)
