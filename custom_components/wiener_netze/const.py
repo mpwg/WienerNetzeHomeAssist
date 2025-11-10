@@ -11,6 +11,7 @@ API_TIMEOUT = 30
 CONF_CLIENT_ID = "client_id"
 CONF_CLIENT_SECRET = "client_secret"
 CONF_API_KEY = "api_key"
+CONF_METER_POINTS = "meter_points"
 
 # Update Interval
 DEFAULT_SCAN_INTERVAL = 15  # minutes

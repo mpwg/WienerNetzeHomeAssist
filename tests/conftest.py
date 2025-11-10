@@ -25,13 +25,6 @@ def mock_config_entry() -> MockConfigEntry:
             "client_id": "test_client_id",
             "client_secret": "test_client_secret",
             "api_key": "test_api_key",
-            "meter_points": [
-                {
-                    "zaehlpunktnummer": "AT0000000000000000000000000000001",
-                    "geraet": {"geraetenummer": "12345678"},
-                    "anlage": {"anlagennummer": "AN123456"},
-                }
-            ],
         },
         unique_id="AT0000000000000000000000000000001",
     )

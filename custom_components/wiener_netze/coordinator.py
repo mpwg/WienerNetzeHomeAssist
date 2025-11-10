@@ -18,6 +18,7 @@ from .api import (
     WienerNetzeConnectionError,
 )
 from .const import (
+    CONF_METER_POINTS,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     GRANULARITY_QUARTER_HOUR,
@@ -51,7 +52,7 @@ class WienerNetzeDataCoordinator(DataUpdateCoordinator):
         )
         self.api_client = api_client
         self.config_entry = config_entry
-        self.meter_points = config_entry.data.get("meter_points", [])
+        self.meter_points = config_entry.data.get(CONF_METER_POINTS, [])
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from API.
@@ -148,7 +149,13 @@ class WienerNetzeDataCoordinator(DataUpdateCoordinator):
         if not meter_data:
             return None
 
-        readings = meter_data.get("consumption", {}).get("messwerte", [])
+        consumption = meter_data.get("consumption", {})
+        zaehlwerke = consumption.get("zaehlwerke", [])
+        if not zaehlwerke:
+            return None
+
+        # Get readings from first Zählwerk
+        readings = zaehlwerke[0].get("messwerte", [])
         if not readings:
             return None
 
@@ -169,5 +176,13 @@ class WienerNetzeDataCoordinator(DataUpdateCoordinator):
         if not meter_data:
             return 0.0
 
-        readings = meter_data.get("consumption", {}).get("messwerte", [])
-        return sum(reading.get("wert", 0.0) for reading in readings)
+        consumption = meter_data.get("consumption", {})
+        zaehlwerke = consumption.get("zaehlwerke", [])
+
+        # Sum all readings from all Zählwerke
+        total = 0.0
+        for zaehlwerk in zaehlwerke:
+            readings = zaehlwerk.get("messwerte", [])
+            total += sum(reading.get("messwert", 0.0) for reading in readings)
+
+        return total
