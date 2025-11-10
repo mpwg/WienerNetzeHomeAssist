@@ -14,12 +14,14 @@ Successfully implemented consumption data retrieval functionality in the API cli
 Added TypedDict classes based on OpenAPI specification:
 
 - `ConsumptionReading` - Single consumption reading (Messwert):
+
   - `messwert` - Consumption value (int or float)
   - `qualitaet` - Quality indicator (VAL/EST)
   - `zeitVon` - Start timestamp (ISO 8601)
   - `zeitBis` - End timestamp (ISO 8601)
 
 - `ZaehlwerkMesswerte` - Meter register measurements:
+
   - `obisCode` - OBIS code identifier
   - `einheit` - Unit of measurement (e.g., "kWh")
   - `messwerte` - List of consumption readings
@@ -31,6 +33,7 @@ Added TypedDict classes based on OpenAPI specification:
 ### 2. API Client Method
 
 Implemented `get_consumption_data()` method:
+
 - Calls `/zaehlpunkte/{zaehlpunkt}/messwerte` endpoint
 - Parameters: meter_point, date_from, date_to, granularity
 - Default granularity: QUARTER_HOUR
@@ -55,25 +58,30 @@ Returns date range for the last N days (inclusive)
 
 **`parse_consumption_timestamp(timestamp: str) -> datetime`**
 Parses ISO 8601 timestamps from API responses
+
 - Handles format: "2024-11-10T00:00:00.000+01:00"
 - Fallback to dateutil.parser for complex formats
 
 **`calculate_total_consumption(readings: list[ConsumptionReading]) -> float`**
 Calculates total consumption from a list of readings
+
 - Returns sum in kWh
 - Handles both int and float messwert values
 
 **`get_validated_readings(readings: list[ConsumptionReading]) -> list[ConsumptionReading]`**
 Filters readings to only validated values (qualitaet=VAL)
+
 - Excludes estimated/calculated values
 
 **`extract_all_readings(consumption_data: ConsumptionData) -> list[ConsumptionReading]`**
 Extracts all readings from consumption data response
+
 - Flattens readings from all Zaehlwerke into single list
 
 ### 4. Test Fixtures
 
 Updated `tests/fixtures/consumption_quarter_hour.json`:
+
 - Matches exact OpenAPI specification structure
 - Contains zaehlpunkt and zaehlwerke array
 - Three sample readings (2 validated, 1 estimated)
@@ -85,12 +93,14 @@ Updated `tests/fixtures/consumption_quarter_hour.json`:
 Implemented `TestConsumptionData` class with 12 comprehensive tests:
 
 #### API Method Tests
+
 - ✅ `test_get_consumption_data_quarter_hour` - Successful 15-minute interval retrieval
 - ✅ `test_get_consumption_data_with_params` - Verify correct query parameters
 - ✅ `test_get_consumption_data_not_found` - 404 error handling
 - ✅ `test_get_consumption_data_empty` - Empty response handling
 
 #### Helper Function Tests
+
 - ✅ `test_calculate_total_consumption` - Total calculation with floats
 - ✅ `test_calculate_total_consumption_with_integers` - Total calculation with integers
 - ✅ `test_get_validated_readings` - Filter validated readings
@@ -114,12 +124,14 @@ Missing lines: 286-287, 392-394, 507-511 (error handling branches)
 ## Files Modified
 
 1. `custom_components/wiener_netze/api.py`
+
    - Added consumption data TypedDict models
    - Added `get_consumption_data()` method
    - Added 7 helper functions
    - Imported additional constants from const.py
 
 2. `tests/fixtures/consumption_quarter_hour.json`
+
    - Updated structure to match OpenAPI spec exactly
    - Added proper zaehlwerke structure
 
@@ -132,11 +144,13 @@ Missing lines: 286-287, 392-394, 507-511 (error handling branches)
 **Endpoint:** `GET /zaehlpunkte/{zaehlpunkt}/messwerte`
 
 **Query Parameters:**
+
 - `datumVon` - Start date (YYYY-MM-DD)
 - `datumBis` - End date (YYYY-MM-DD)
 - `wertetyp` - Granularity (QUARTER_HOUR, DAY, METER_READ)
 
 **Response Format:**
+
 ```json
 {
   "zaehlpunkt": "AT0010000000000000001000000000001",
@@ -171,6 +185,7 @@ Missing lines: 286-287, 392-394, 507-511 (error handling branches)
 ## Integration with Home Assistant
 
 This consumption data will be used by:
+
 - Coordinator to fetch and cache consumption readings
 - Sensors to display current consumption and historical data
 - Statistics for energy monitoring
@@ -188,7 +203,8 @@ This consumption data will be used by:
 
 ## Next Steps
 
-Proceed to **Task 10: Integration __init__.py** to implement:
+Proceed to **Task 10: Integration **init**.py** to implement:
+
 - Integration entry point
 - Setup and unload functions
 - Platform forwarding
