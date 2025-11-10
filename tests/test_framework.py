@@ -21,9 +21,11 @@ def test_load_json_fixture():
 def test_load_meter_points_fixture():
     """Test loading meter points fixture."""
     data = load_json_fixture("meter_points.json")
-    assert isinstance(data, list)
-    assert len(data) > 0
-    assert "zaehlpunktnummer" in data[0]
+    assert isinstance(data, dict)
+    assert "items" in data
+    assert isinstance(data["items"], list)
+    assert len(data["items"]) > 0
+    assert "zaehlpunktnummer" in data["items"][0]
 
 
 def test_load_consumption_fixture():

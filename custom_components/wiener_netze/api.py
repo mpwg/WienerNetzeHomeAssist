@@ -2,7 +2,7 @@
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, TypedDict
 
 import aiohttp
 from aiohttp import ClientSession, ClientTimeout
@@ -14,6 +14,56 @@ API_BASE_URL = "https://api.wstw.at/gateway/WN_SMART_METER_API/1.0"
 OAUTH_TOKEN_URL = "https://api.wstw.at/oauth2/token"
 DEFAULT_TIMEOUT = 30
 RETRY_ATTEMPTS = 3
+
+
+# Data Models
+class Verbrauchsstelle(TypedDict):
+    """Consumption location address information."""
+
+    haus: str
+    hausnummer1: str
+    hausnummer2: str
+    land: str
+    ort: str
+    postleitzahl: str
+    stockwerk: str
+    strasse: str
+    strasseZusatz: str
+    tuernummer: str
+
+
+class Geraet(TypedDict):
+    """Device/equipment information."""
+
+    equipmentnummer: str
+    geraetenummer: str
+
+
+class Anlage(TypedDict):
+    """Installation/facility information."""
+
+    anlage: str
+    sparte: str
+    typ: str
+
+
+class Idex(TypedDict):
+    """IDEX smart meter interface information."""
+
+    customerInterface: str
+    displayLocked: bool
+    granularity: str
+
+
+class MeterPoint(TypedDict):
+    """Meter point (Zählpunkt) information."""
+
+    zaehlpunktnummer: str
+    zaehlpunktname: str
+    verbrauchsstelle: Verbrauchsstelle
+    geraet: Geraet
+    anlage: Anlage
+    idex: Idex
 
 
 # Exception Classes
@@ -226,3 +276,89 @@ class WienerNetzeApiClient:
     async def _post(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
         """Make a POST request."""
         return await self._request("POST", endpoint, **kwargs)
+
+    async def get_meter_points(self) -> list[MeterPoint]:
+        """Get all meter points for the authenticated user.
+
+        Returns:
+            List of meter points with address and metadata
+
+        Raises:
+            WienerNetzeAuthError: Authentication failed
+            WienerNetzeApiError: API request failed
+
+        """
+        _LOGGER.debug("Fetching meter points")
+
+        try:
+            response = await self._get("zaehlpunkte")
+
+            # The API returns items array (or might be a list directly)
+            meter_points = response.get(
+                "items", response if isinstance(response, list) else []
+            )
+
+            _LOGGER.info("Retrieved %d meter point(s)", len(meter_points))
+
+            return meter_points
+
+        except WienerNetzeApiError:
+            _LOGGER.error("Failed to fetch meter points")
+            raise
+
+
+def format_meter_point_address(meter_point: MeterPoint) -> str:
+    """Format meter point address as string.
+
+    Args:
+        meter_point: Meter point data
+
+    Returns:
+        Formatted address string
+
+    """
+    addr = meter_point["verbrauchsstelle"]
+    parts = []
+
+    # Street and house number
+    if addr.get("strasse"):
+        street_part = addr["strasse"]
+        if addr.get("hausnummer1"):
+            street_part += f" {addr['hausnummer1']}"
+        if addr.get("hausnummer2"):
+            street_part += f"/{addr['hausnummer2']}"
+        parts.append(street_part)
+
+    # Additional street info
+    if addr.get("strasseZusatz"):
+        parts.append(addr["strasseZusatz"])
+
+    # Floor/Staircase/Door
+    floor_parts = []
+    if addr.get("stockwerk"):
+        floor_parts.append(f"Stockwerk {addr['stockwerk']}")
+    if addr.get("haus"):
+        floor_parts.append(f"Haus {addr['haus']}")
+    if addr.get("tuernummer"):
+        floor_parts.append(f"Tür {addr['tuernummer']}")
+    if floor_parts:
+        parts.append(", ".join(floor_parts))
+
+    # Postal code and city
+    if addr.get("postleitzahl") and addr.get("ort"):
+        parts.append(f"{addr['postleitzahl']} {addr['ort']}")
+
+    return ", ".join(parts)
+
+
+def get_meter_point_id(meter_point: MeterPoint) -> str:
+    """Get unique identifier for meter point.
+
+    Args:
+        meter_point: Meter point data
+
+    Returns:
+        Meter point number (Zählpunktnummer)
+
+    """
+    return meter_point["zaehlpunktnummer"]

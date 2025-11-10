@@ -24,6 +24,7 @@ Created a complete exception hierarchy for API error handling:
 ```
 
 **Benefits:**
+
 - Clear exception hierarchy for error handling
 - Specific exceptions for different error scenarios
 - Easy to catch and handle specific error types in calling code
@@ -33,6 +34,7 @@ Created a complete exception hierarchy for API error handling:
 **Class:** `WienerNetzeApiClient`
 
 **Key Features:**
+
 - Async/await throughout (using aiohttp)
 - Dual authentication (OAuth2 Bearer + x-Gateway-APIKey)
 - Automatic token management and refresh
@@ -40,6 +42,7 @@ Created a complete exception hierarchy for API error handling:
 - Request/response logging
 
 **Initialization Parameters:**
+
 ```python
 - session: ClientSession (aiohttp session)
 - client_id: OAuth2 client ID
@@ -52,6 +55,7 @@ Created a complete exception hierarchy for API error handling:
 **Method:** `authenticate()`
 
 **Features:**
+
 - OAuth2 client credentials flow
 - Token expiration tracking
 - Automatic token refresh (5-minute buffer)
@@ -59,6 +63,7 @@ Created a complete exception hierarchy for API error handling:
 - Connection and timeout error handling
 
 **Token Management:**
+
 ```python
 - _access_token: Stores the Bearer token
 - _token_expires_at: Tracks token expiration
@@ -66,6 +71,7 @@ Created a complete exception hierarchy for API error handling:
 ```
 
 **Token Refresh Logic:**
+
 - Checks token validity before each request
 - Refreshes if expired or missing
 - 5-minute buffer before expiration
@@ -76,6 +82,7 @@ Created a complete exception hierarchy for API error handling:
 **Method:** `_request(method, endpoint, **kwargs)`
 
 **Features:**
+
 - Generic request method with retry logic
 - Automatic token management
 - Comprehensive HTTP status code handling
@@ -83,6 +90,7 @@ Created a complete exception hierarchy for API error handling:
 - Configurable timeout (30 seconds default)
 
 **HTTP Status Code Handling:**
+
 - ✅ 200: Success
 - ❌ 400: Bad Request → `WienerNetzeBadRequestError`
 - ❌ 401: Unauthorized → Re-authenticate and retry
@@ -93,6 +101,7 @@ Created a complete exception hierarchy for API error handling:
 - ❌ 5xx: Server Error → `WienerNetzeApiError`
 
 **Helper Methods:**
+
 ```python
 - _get(endpoint, **kwargs): GET request wrapper
 - _post(endpoint, **kwargs): POST request wrapper
@@ -103,6 +112,7 @@ Created a complete exception hierarchy for API error handling:
 **Property:** `_headers`
 
 Returns headers with both authentication methods:
+
 ```python
 {
     "x-Gateway-APIKey": "<api_key>",
@@ -116,6 +126,7 @@ Returns headers with both authentication methods:
 Added comprehensive API configuration constants:
 
 **API Configuration:**
+
 ```python
 API_BASE_URL = "https://api.wstw.at/gateway/WN_SMART_METER_API/1.0"
 OAUTH_TOKEN_URL = "https://api.wstw.at/oauth2/token"
@@ -123,6 +134,7 @@ API_TIMEOUT = 30
 ```
 
 **Configuration Keys:**
+
 ```python
 CONF_CLIENT_ID = "client_id"
 CONF_CLIENT_SECRET = "client_secret"
@@ -130,11 +142,13 @@ CONF_API_KEY = "api_key"
 ```
 
 **Update Interval:**
+
 ```python
 DEFAULT_SCAN_INTERVAL = 15  # minutes
 ```
 
 **API Parameters:**
+
 ```python
 GRANULARITY_QUARTER_HOUR = "QUARTER_HOUR"
 GRANULARITY_DAY = "DAY"
@@ -145,6 +159,7 @@ RESULT_TYPE_ALL = "ALL"
 ```
 
 **Quality Indicators:**
+
 ```python
 QUALITY_VAL = "VAL"  # Validated actual value
 QUALITY_EST = "EST"  # Estimated/calculated value
@@ -155,6 +170,7 @@ QUALITY_EST = "EST"  # Estimated/calculated value
 **File:** `tests/test_api.py`
 
 **Test Classes:**
+
 1. `TestApiClientInitialization` - Client setup and header tests
 2. `TestAuthentication` - OAuth2 authentication scenarios
 3. `TestApiRequests` - HTTP request handling and error scenarios
@@ -164,11 +180,13 @@ QUALITY_EST = "EST"  # Estimated/calculated value
 **Tests Implemented (23 total):**
 
 #### Initialization Tests (3)
+
 - ✅ Client initialization
 - ✅ Headers without token
 - ✅ Headers with token
 
 #### Authentication Tests (8)
+
 - ✅ Successful authentication
 - ✅ Invalid credentials (401)
 - ✅ Server error during auth
@@ -179,6 +197,7 @@ QUALITY_EST = "EST"  # Estimated/calculated value
 - ✅ Missing token (triggers auth)
 
 #### API Request Tests (12)
+
 - ✅ Successful request (200)
 - ✅ Bad request (400)
 - ✅ Unauthorized with retry (401)
@@ -197,16 +216,19 @@ QUALITY_EST = "EST"  # Estimated/calculated value
 ### Architecture Decisions
 
 1. **Async/Await Design**
+
    - All I/O operations use async/await
    - Compatible with Home Assistant's async architecture
    - Non-blocking API calls
 
 2. **Token Management Strategy**
+
    - Proactive token refresh (5-minute buffer)
    - Automatic retry on 401 responses
    - Minimal authentication overhead
 
 3. **Error Handling Philosophy**
+
    - Specific exceptions for different error types
    - Automatic retry only for 401 (token expiration)
    - Clear error messages with context
@@ -219,11 +241,13 @@ QUALITY_EST = "EST"  # Estimated/calculated value
 ### Security Considerations
 
 1. **Dual Authentication**
+
    - OAuth2 Bearer token for user authorization
    - API Gateway key for service identification
    - Both required for API access
 
 2. **Token Security**
+
    - Tokens stored in memory only
    - No token persistence in this layer
    - Automatic expiration handling
@@ -236,9 +260,11 @@ QUALITY_EST = "EST"  # Estimated/calculated value
 ## Files Modified/Created
 
 ### Created
+
 - None (files already existed from previous tasks)
 
 ### Modified
+
 ```
 custom_components/wiener_netze/
 ├── api.py (229 lines) - Complete API client implementation
@@ -251,6 +277,7 @@ tests/
 ## Testing Results
 
 ### Test Execution
+
 ```bash
 pytest tests/test_api.py -v
 ```
@@ -258,11 +285,13 @@ pytest tests/test_api.py -v
 **Result:** ✅ 23 tests passed (0.19s)
 
 ### Code Coverage
+
 ```bash
 pytest tests/test_api.py --cov=custom_components.wiener_netze.api --cov-report=term-missing
 ```
 
 **Result:** ✅ 98% coverage (97/99 statements)
+
 - Only uncovered: Unexpected response status codes (catch-all error handler)
 
 ## Acceptance Criteria
@@ -279,19 +308,23 @@ pytest tests/test_api.py --cov=custom_components.wiener_netze.api --cov-report=t
 ## Integration Points
 
 ### With Home Assistant
+
 - Uses `aiohttp.ClientSession` from HA core
 - Compatible with HA's async event loop
 - Follows HA integration patterns
 
 ### With Config Flow (Future)
+
 - Client initialization from config entry data
 - Credentials from user input
 
 ### With Coordinator (Future)
+
 - Client provides data fetching methods
 - Error exceptions for coordinator error handling
 
 ### With Sensors (Future)
+
 - Client retrieves consumption data
 - Data transformation in coordinator
 
@@ -302,6 +335,7 @@ Based on `dokumentation/Export_WN_SMART_METER_API.yaml`:
 **Base URL:** `https://api.wstw.at/gateway/WN_SMART_METER_API/1.0`
 
 **Authentication:**
+
 - OAuth2 Token URL: `https://api.wstw.at/oauth2/token`
 - Grant Type: `client_credentials`
 - Required Headers:
@@ -309,22 +343,26 @@ Based on `dokumentation/Export_WN_SMART_METER_API.yaml`:
   - `x-Gateway-APIKey: <api_key>`
 
 **Endpoints (to be implemented in next tasks):**
+
 - `/zaehlpunkte` - Get meter points
 - `/messdaten/zaehlpunkt/{zaehlpunkt}` - Get consumption data
 
 ## Known Limitations
 
 1. **No Retry Logic**
+
    - Except for 401 (automatic re-auth)
    - Rate limiting handled with exception only
    - Connection errors not automatically retried
 
 2. **Fixed Timeout**
+
    - 30 seconds for all requests
    - Not configurable at runtime
    - Could be parameterized in future
 
 3. **No Response Caching**
+
    - Every request hits the API
    - Caching handled by coordinator layer
    - API provides fresh data each time
@@ -337,11 +375,13 @@ Based on `dokumentation/Export_WN_SMART_METER_API.yaml`:
 ## Future Enhancements
 
 ### Short-term (Next Tasks)
+
 - Implement meter points retrieval (Task 06)
 - Implement consumption data retrieval (Task 07)
 - Add request/response data validation
 
 ### Long-term
+
 - Add exponential backoff retry logic
 - Implement request rate limiting
 - Add response caching layer
@@ -367,15 +407,18 @@ Based on `dokumentation/Export_WN_SMART_METER_API.yaml`:
 ## Next Steps
 
 **Immediate:**
+
 - Commit changes to repository
 - Move to Task 06
 
 **Task 06:** API Client - Meter Points Retrieval
+
 - Implement `get_meter_points()` method
 - Parse meter point data
 - Add tests for meter point retrieval
 
 **Task 07:** API Client - Consumption Data Retrieval
+
 - Implement `get_consumption_data()` method
 - Support different granularities
 - Add tests for consumption data
@@ -383,6 +426,7 @@ Based on `dokumentation/Export_WN_SMART_METER_API.yaml`:
 ## Conclusion
 
 Task 05 successfully completed. The API client base structure is fully implemented with:
+
 - ✅ Robust OAuth2 authentication
 - ✅ Comprehensive error handling
 - ✅ Dual authentication support

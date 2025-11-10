@@ -16,6 +16,8 @@ from custom_components.wiener_netze.api import (
     WienerNetzeNotFoundError,
     WienerNetzeRateLimitError,
     WienerNetzeTimeoutError,
+    format_meter_point_address,
+    get_meter_point_id,
 )
 from tests.utils import load_json_fixture
 
@@ -386,3 +388,161 @@ class TestApiRequests:
         assert result == {"data": "test"}
         call_args = mock_session.request.call_args
         assert call_args[0][0] == "POST"
+
+
+class TestMeterPoints:
+    """Tests for meter point retrieval."""
+
+    async def test_get_meter_points_success(self, api_client, mock_session):
+        """Test successful meter points retrieval."""
+        api_client._access_token = "test_token"
+        api_client._token_expires_at = datetime.now() + timedelta(hours=1)
+
+        meter_points_data = load_json_fixture("meter_points.json")
+
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json = AsyncMock(return_value=meter_points_data)
+        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
+
+        result = await api_client.get_meter_points()
+
+        assert len(result) == 2
+        assert result[0]["zaehlpunktnummer"] == "AT0010000000000000001000000000001"
+        assert result[0]["verbrauchsstelle"]["strasse"] == "Teststraße"
+        assert result[1]["verbrauchsstelle"]["postleitzahl"] == "1020"
+
+    async def test_get_meter_points_empty(self, api_client, mock_session):
+        """Test meter points retrieval with no meters."""
+        api_client._access_token = "test_token"
+        api_client._token_expires_at = datetime.now() + timedelta(hours=1)
+
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.json = AsyncMock(return_value={"items": []})
+        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
+
+        result = await api_client.get_meter_points()
+
+        assert len(result) == 0
+
+    async def test_get_meter_points_auth_error(self, api_client, mock_session):
+        """Test meter points retrieval with auth error."""
+        api_client._access_token = "test_token"
+        api_client._token_expires_at = datetime.now() + timedelta(hours=1)
+
+        mock_response = AsyncMock()
+        mock_response.status = 403
+        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
+
+        with pytest.raises(WienerNetzeAuthError):
+            await api_client.get_meter_points()
+
+    async def test_get_meter_points_not_found(self, api_client, mock_session):
+        """Test meter points retrieval with not found error."""
+        api_client._access_token = "test_token"
+        api_client._token_expires_at = datetime.now() + timedelta(hours=1)
+
+        mock_response = AsyncMock()
+        mock_response.status = 404
+        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
+
+        with pytest.raises(WienerNetzeNotFoundError):
+            await api_client.get_meter_points()
+
+    def test_format_meter_point_address_full(self):
+        """Test formatting full address."""
+        meter_point = {
+            "zaehlpunktnummer": "AT0010000000000000001000000000001",
+            "verbrauchsstelle": {
+                "strasse": "Teststraße",
+                "hausnummer1": "42",
+                "hausnummer2": "A",
+                "strasseZusatz": "Hinterhaus",
+                "haus": "2",
+                "stockwerk": "3",
+                "tuernummer": "15",
+                "postleitzahl": "1010",
+                "ort": "Wien",
+                "land": "AT",
+            },
+        }
+
+        result = format_meter_point_address(meter_point)
+
+        assert "Teststraße 42/A" in result
+        assert "Hinterhaus" in result
+        assert "Stockwerk 3" in result
+        assert "Haus 2" in result
+        assert "Tür 15" in result
+        assert "1010 Wien" in result
+
+    def test_format_meter_point_address_minimal(self):
+        """Test formatting minimal address."""
+        meter_point = {
+            "zaehlpunktnummer": "AT0010000000000000001000000000002",
+            "verbrauchsstelle": {
+                "strasse": "Beispielgasse",
+                "hausnummer1": "10",
+                "hausnummer2": "",
+                "strasseZusatz": "",
+                "haus": "",
+                "stockwerk": "",
+                "tuernummer": "",
+                "postleitzahl": "1020",
+                "ort": "Wien",
+                "land": "AT",
+            },
+        }
+
+        result = format_meter_point_address(meter_point)
+
+        assert result == "Beispielgasse 10, 1020 Wien"
+
+    def test_format_meter_point_address_no_street(self):
+        """Test formatting address without street."""
+        meter_point = {
+            "zaehlpunktnummer": "AT0010000000000000001000000000003",
+            "verbrauchsstelle": {
+                "strasse": "",
+                "hausnummer1": "",
+                "hausnummer2": "",
+                "strasseZusatz": "",
+                "haus": "5",
+                "stockwerk": "2",
+                "tuernummer": "8",
+                "postleitzahl": "1030",
+                "ort": "Wien",
+                "land": "AT",
+            },
+        }
+
+        result = format_meter_point_address(meter_point)
+
+        assert "Stockwerk 2" in result
+        assert "Haus 5" in result
+        assert "Tür 8" in result
+        assert "1030 Wien" in result
+
+    def test_get_meter_point_id(self):
+        """Test getting meter point ID."""
+        meter_point = {
+            "zaehlpunktnummer": "AT0010000000000000001000000000001",
+            "zaehlpunktname": "Test",
+        }
+
+        result = get_meter_point_id(meter_point)
+
+        assert result == "AT0010000000000000001000000000001"

@@ -14,6 +14,7 @@ Successfully configured the repository for HACS (Home Assistant Community Store)
 **File:** `hacs.json`
 
 Created HACS configuration file with the following settings:
+
 - **name:** "Wiener Netze Smart Meter"
 - **render_readme:** true (enables README display in HACS)
 - **domains:** ["sensor"]
@@ -29,6 +30,7 @@ Created HACS configuration file with the following settings:
 Created two issue templates:
 
 #### Bug Report (`bug_report.yml`)
+
 - Structured form for bug reporting
 - Fields for:
   - Bug description
@@ -39,6 +41,7 @@ Created two issue templates:
   - Integration version
 
 #### Feature Request (`feature_request.yml`)
+
 - Structured form for feature suggestions
 - Fields for:
   - Feature description
@@ -50,6 +53,7 @@ Created two issue templates:
 **File:** `.github/pull_request_template.md`
 
 Created PR template with:
+
 - Description section
 - Type of change checkboxes (bug fix, feature, breaking change, docs)
 - Comprehensive checklist for code quality, testing, and documentation
@@ -59,6 +63,7 @@ Created PR template with:
 **File:** `scripts/validate_hacs.py`
 
 Created automated validation script that checks:
+
 - ✅ `hacs.json` exists and is valid JSON
 - ✅ Required HACS fields: name, domains, iot_class
 - ✅ `manifest.json` exists and is valid JSON
@@ -72,12 +77,15 @@ Created automated validation script that checks:
 Enhanced README with detailed HACS installation instructions:
 
 #### Added Prerequisites Section
+
 - Wiener Netze Smart Meter requirement
 - API credentials link to WSTW API Portal
 - HACS installation guide link
 
 #### Enhanced HACS Installation Steps
+
 Detailed 10-step process:
+
 1. Open HACS
 2. Navigate to Integrations
 3. Access custom repositories
@@ -90,16 +98,19 @@ Detailed 10-step process:
 10. Configure via UI
 
 #### Improved Manual Installation
+
 - Added link to GitHub Releases
 - Clear extraction and copying instructions
 
 #### Enhanced Configuration Section
+
 - Step-by-step UI configuration
 - Bold formatting for clarity
 
 ## HACS Requirements Validation
 
 ### Repository Structure ✅
+
 - ✅ Custom integration in `custom_components/wiener_netze/`
 - ✅ `manifest.json` with required fields
 - ✅ One integration per repository
@@ -107,6 +118,7 @@ Detailed 10-step process:
 - ✅ `LICENSE.md` file (AGPL-3.0)
 
 ### manifest.json Requirements ✅
+
 - ✅ `domain`: "wiener_netze"
 - ✅ `name`: "Wiener Netze Smart Meter"
 - ✅ `version`: "0.1.0" (semantic versioning)
@@ -117,6 +129,7 @@ Detailed 10-step process:
 - ✅ `iot_class`: "cloud_polling"
 
 ### GitHub Requirements ✅
+
 - ✅ Public repository
 - ✅ Issue templates configured
 - ✅ Pull request template configured
@@ -126,15 +139,19 @@ Detailed 10-step process:
 ## Testing
 
 ### Automated Tests
+
 ```bash
 python3 scripts/validate_hacs.py
 ```
+
 **Result:** ✓ HACS validation passed
 
 ### Manual Verification
+
 ```bash
 cat hacs.json | python3 -m json.tool
 ```
+
 **Result:** Valid JSON format confirmed
 
 ## Files Created
@@ -168,12 +185,15 @@ cat hacs.json | python3 -m json.tool
 ## Next Steps
 
 ### Immediate
+
 Repository is now HACS-ready! Users can add it as a custom repository.
 
 ### Manual GitHub Configuration Required
+
 To complete HACS setup, add repository topics via GitHub:
 
 **Option 1: GitHub Web Interface**
+
 1. Go to repository Settings → General
 2. Under "Topics", add:
    - `home-assistant`
@@ -183,15 +203,19 @@ To complete HACS setup, add repository topics via GitHub:
    - `home-automation`
 
 **Option 2: GitHub CLI**
+
 ```bash
 gh repo edit --add-topic home-assistant,hacs,wiener-netze,smart-meter,home-automation
 ```
 
 ### Future Task
+
 **Task 35:** Create first tagged release for HACS version tracking
 
 ### Optional
+
 Submit to official HACS default repository after:
+
 - First stable release (v1.0.0)
 - Thorough testing by users
 - Documentation completion
@@ -199,12 +223,14 @@ Submit to official HACS default repository after:
 ## Benefits
 
 ### For Users
+
 - ✅ Easy installation via HACS interface
 - ✅ Automatic update notifications
 - ✅ Standardized issue reporting
 - ✅ Clear contribution guidelines
 
 ### For Maintainers
+
 - ✅ Automated validation of HACS requirements
 - ✅ Structured issue and PR templates
 - ✅ Quality control through PR checklists
@@ -213,11 +239,13 @@ Submit to official HACS default repository after:
 ## Documentation
 
 ### HACS References
+
 - [HACS Documentation](https://hacs.xyz/)
 - [HACS Integration Requirements](https://hacs.xyz/docs/publish/integration/)
 - [HACS Action Validation](https://github.com/hacs/action)
 
 ### Project References
+
 - Integration URL: `https://github.com/mpwg/WienerNetzeHomeAssist`
 - HACS Category: Integration
 - Minimum HA Version: 2024.1.0

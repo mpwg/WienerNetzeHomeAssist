@@ -1,11 +1,64 @@
-[
-  {
-    "zaehlpunktnummer": "AT0000000000000000000000000000001",
-    "geraet": {
-      "geraetenummer": "12345678"
+{
+  "items": [
+    {
+      "zaehlpunktnummer": "AT0010000000000000001000000000001",
+      "zaehlpunktname": "Hauptzähler",
+      "verbrauchsstelle": {
+        "strasse": "Teststraße",
+        "hausnummer1": "42",
+        "hausnummer2": "A",
+        "strasseZusatz": "",
+        "haus": "2",
+        "stockwerk": "3",
+        "tuernummer": "15",
+        "postleitzahl": "1010",
+        "ort": "Wien",
+        "land": "AT"
+      },
+      "geraet": {
+        "geraetenummer": "12345678",
+        "equipmentnummer": "EQ123456"
+      },
+      "anlage": {
+        "anlage": "000001",
+        "sparte": "STROM",
+        "typ": "NZ"
+      },
+      "idex": {
+        "customerInterface": "WEBPORTAL",
+        "displayLocked": false,
+        "granularity": "QH"
+      }
     },
-    "anlage": {
-      "anlagennummer": "AN123456"
+    {
+      "zaehlpunktnummer": "AT0010000000000000001000000000002",
+      "zaehlpunktname": "Nebenzähler",
+      "verbrauchsstelle": {
+        "strasse": "Beispielgasse",
+        "hausnummer1": "10",
+        "hausnummer2": "",
+        "strasseZusatz": "",
+        "haus": "",
+        "stockwerk": "",
+        "tuernummer": "",
+        "postleitzahl": "1020",
+        "ort": "Wien",
+        "land": "AT"
+      },
+      "geraet": {
+        "geraetenummer": "87654321",
+        "equipmentnummer": "EQ654321"
+      },
+      "anlage": {
+        "anlage": "000002",
+        "sparte": "STROM",
+        "typ": "NZ"
+      },
+      "idex": {
+        "customerInterface": "WEBPORTAL",
+        "displayLocked": false,
+        "granularity": "QH"
+      }
     }
-  }
-]
+  ]
+}
