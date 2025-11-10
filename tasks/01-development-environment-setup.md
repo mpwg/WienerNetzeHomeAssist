@@ -1,8 +1,8 @@
 # Task 01: Development Environment Setup
 
-**Category:** Project Setup  
-**Priority:** High  
-**Estimated Effort:** 2-3 hours  
+**Category:** Project Setup
+**Priority:** High
+**Estimated Effort:** 2-3 hours
 **Status:** Not Started
 
 ## Description

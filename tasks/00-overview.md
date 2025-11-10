@@ -1,7 +1,7 @@
 # Tasks Overview
 
-**Project:** Wiener Netze Smart Meter Home Assistant Integration  
-**Created:** November 10, 2025  
+**Project:** Wiener Netze Smart Meter Home Assistant Integration
+**Created:** November 10, 2025
 **Status:** Planning Phase
 
 ## Task Categories

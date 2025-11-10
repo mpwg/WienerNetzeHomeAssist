@@ -4,8 +4,8 @@ version: "1.0"
 baseUri: "https://api.wstw.at/gateway/WN_SMART_METER_API/1.0"
 protocols: [HTTPS]
 mediaType: application/json
-schemas: 
-    - 
+schemas:
+    -
         Geraet: '{"required":["geraetenummer","equipmentnummer"],"type":"object","properties":{"equipmentnummer":{"type":"string"},"geraetenummer":{"type":"string"}}}'
         Messwert: '{"required":["zeitVon","qualitaet","messwert","zeitBis"],"type":"object","properties":{"messwert":{"type":"integer","format":"int64"},"qualitaet":{"type":"string"},"zeitBis":{"type":"string"},"zeitVon":{"type":"string"}}}'
         zaehlpunktezaehlpunktmesswerte_GET_response: '{"required":["zaehlwerke","zaehlpunkt"],"type":"object","properties":{"zaehlpunkt":{"type":"string"},"zaehlwerke":{"type":"array","items":{"$ref":"#/definitions/ZaehlwerkMesswerte"}}}}'
@@ -18,206 +18,206 @@ schemas:
         Zaehlpunkt: '{"required":["zaehlpunktnummer","verbrauchsstelle","anlage","geraet","zaehlpunktname","idex"],"type":"object","properties":{"anlage":{"$ref":"#/definitions/Anlage"},"geraet":{"$ref":"#/definitions/Geraet"},"idex":{"$ref":"#/definitions/Idex"},"verbrauchsstelle":{"$ref":"#/definitions/Verbrauchsstelle"},"zaehlpunktname":{"type":"string"},"zaehlpunktnummer":{"type":"string"}}}'
         Idex: '{"required":["granularity","displayLocked","customerInterface"],"type":"object","properties":{"customerInterface":{"type":"string"},"displayLocked":{"type":"boolean"},"granularity":{"type":"string"}}}'
         zaehlpunktezaehlpunkt_GET_response: '{"type":"object","properties":{"anlage":{"$ref":"#/definitions/Anlage"},"geraet":{"$ref":"#/definitions/Geraet"},"idex":{"$ref":"#/definitions/Idex"},"verbrauchsstelle":{"$ref":"#/definitions/Verbrauchsstelle"},"zaehlpunktname":{"type":"string"},"zaehlpunktnummer":{"type":"string"}}}'
-securitySchemes: 
-    - 
-        oAuth2Token: 
+securitySchemes:
+    -
+        oAuth2Token:
             type: OAuth 2.0
-            settings: 
+            settings:
                 accessTokenUri: "https://api.wstw.at/invoke/pub.apigateway.oauth2/getAccessToken"
                 authorizationGrants: [credentials]
                 scopes: [ecad3cdc-3db1-11ea-94c8-b00481db114b]
-        apiKey: 
+        apiKey:
             type: x-apiKey
-            describedBy: 
-                headers: 
-                    Authorization: 
+            describedBy:
+                headers:
+                    Authorization:
                         type: string
                         required: false
                         repeat: false
-securedBy: 
-    - 
+securedBy:
+    -
         apiKey
-    - 
+    -
         oAuth2Token
-/zaehlpunkte: 
+/zaehlpunkte:
     displayName: /zaehlpunkte
-    get: 
-        queryParameters: 
-            webProfileId: 
+    get:
+        queryParameters:
+            webProfileId:
                 type: string
                 required: false
                 repeat: false
-            zaehlpunkt: 
+            zaehlpunkt:
                 type: string
                 required: false
                 repeat: true
-            resultType: 
+            resultType:
                 type: string
                 required: false
                 repeat: false
-        body: 
-            multipart/form-data: 
-                formParameters: 
-                    oauthToken: 
+        body:
+            multipart/form-data:
+                formParameters:
+                    oauthToken:
                         type: string
                         required: false
                         repeat: false
-        responses: 
-            "200": 
+        responses:
+            "200":
                 description: Successful
-                body: 
-                    application/json: 
+                body:
+                    application/json:
                         schema: zaehlpunkte_GET_response
-            "400": 
+            "400":
                 description: Bad Request
-            "401": 
+            "401":
                 description: Access Denied
-            "500": 
+            "500":
                 description: Internal Server Error
-            "403": 
+            "403":
                 description: Forbidden
-            "404": 
+            "404":
                 description: Not found
-    /messwerte: 
+    /messwerte:
         displayName: /zaehlpunkte/messwerte
-        get: 
-            queryParameters: 
-                webProfileId: 
+        get:
+            queryParameters:
+                webProfileId:
                     type: string
                     required: false
                     repeat: false
-                datumVon: 
+                datumVon:
                     type: string
                     required: true
                     repeat: false
-                zaehlpunkt: 
+                zaehlpunkt:
                     type: string
                     required: false
                     repeat: true
-                datumBis: 
+                datumBis:
                     type: string
                     required: true
                     repeat: false
-                wertetyp: 
+                wertetyp:
                     type: string
                     required: true
                     repeat: false
-            body: 
-                multipart/form-data: 
-                    formParameters: 
-                        oauthToken: 
+            body:
+                multipart/form-data:
+                    formParameters:
+                        oauthToken:
                             type: string
                             required: false
                             repeat: false
-            responses: 
-                "200": 
+            responses:
+                "200":
                     description: Successful
-                    body: 
-                        application/json: 
+                    body:
+                        application/json:
                             schema: zaehlpunktemesswerte_GET_response
-                "400": 
+                "400":
                     description: Bad Request
-                "401": 
+                "401":
                     description: Access Denied
-                "500": 
+                "500":
                     description: Internal Server Error
-                "403": 
+                "403":
                     description: Forbidden
-                "404": 
+                "404":
                     description: Not found
-    /{zaehlpunkt}: 
+    /{zaehlpunkt}:
         displayName: /zaehlpunkte/{zaehlpunkt}
-        get: 
-            queryParameters: 
-                webProfileId: 
+        get:
+            queryParameters:
+                webProfileId:
                     type: string
                     required: false
                     repeat: false
-            body: 
-                multipart/form-data: 
-                    formParameters: 
-                        oauthToken: 
+            body:
+                multipart/form-data:
+                    formParameters:
+                        oauthToken:
                             type: string
                             required: false
                             repeat: false
-            responses: 
-                "200": 
+            responses:
+                "200":
                     description: Successful
-                    body: 
-                        application/json: 
+                    body:
+                        application/json:
                             schema: zaehlpunktezaehlpunkt_GET_response
-                "400": 
+                "400":
                     description: Bad Request
-                "401": 
+                "401":
                     description: Access Denied
-                "500": 
+                "500":
                     description: Internal Server Error
-                "403": 
+                "403":
                     description: Forbidden
-                "404": 
+                "404":
                     description: Not found
-            baseUriParameters: 
-                zaehlpunkt: 
+            baseUriParameters:
+                zaehlpunkt:
                     type: string
                     required: true
                     repeat: false
-        /messwerte: 
+        /messwerte:
             displayName: /zaehlpunkte/{zaehlpunkt}/messwerte
-            get: 
-                queryParameters: 
-                    webProfileId: 
+            get:
+                queryParameters:
+                    webProfileId:
                         type: string
                         required: false
                         repeat: false
-                    datumVon: 
+                    datumVon:
                         type: string
                         required: true
                         repeat: false
-                    datumBis: 
+                    datumBis:
                         type: string
                         required: true
                         repeat: false
-                    wertetyp: 
+                    wertetyp:
                         type: string
                         required: true
                         repeat: false
-                body: 
-                    multipart/form-data: 
-                        formParameters: 
-                            oauthToken: 
+                body:
+                    multipart/form-data:
+                        formParameters:
+                            oauthToken:
                                 type: string
                                 required: false
                                 repeat: false
-                responses: 
-                    "200": 
+                responses:
+                    "200":
                         description: Successful
-                        body: 
-                            application/json: 
+                        body:
+                            application/json:
                                 schema: zaehlpunktezaehlpunktmesswerte_GET_response
-                    "400": 
+                    "400":
                         description: Bad Request
-                    "401": 
+                    "401":
                         description: Access Denied
-                    "500": 
+                    "500":
                         description: Internal Server Error
-                    "403": 
+                    "403":
                         description: Forbidden
-                    "404": 
+                    "404":
                         description: Not found
-                baseUriParameters: 
-                    zaehlpunkt: 
+                baseUriParameters:
+                    zaehlpunkt:
                         type: string
                         required: true
                         repeat: false
-documentation: 
-    - 
+documentation:
+    -
         title: API Description
         content: |
             Diese API ermöglicht Kunden, die sich zusätzlich mit OAUTH2 Token authentizieren, den Bezug von Anlagedaten und Verbauchswerten.
             Zur Verfügung stehen sowohl allgemeine Aufrufe nur mit der Geschäftspartnernummer als auch gezielte zählpunktscharfe Anfragen.
-    - 
+    -
         title: License
         content: Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)
-    - 
+    -
         title: License URL
         content: "https://creativecommons.org/licenses/by-nc-nd/4.0/"

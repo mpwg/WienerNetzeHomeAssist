@@ -1,8 +1,8 @@
 # Task 02: Repository Structure Setup
 
-**Category:** Project Setup  
-**Priority:** High  
-**Estimated Effort:** 1-2 hours  
+**Category:** Project Setup
+**Priority:** High
+**Estimated Effort:** 1-2 hours
 **Status:** Not Started
 
 ## Description

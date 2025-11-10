@@ -1,8 +1,8 @@
 # Task 04: HACS Configuration Setup
 
-**Category:** Project Setup  
-**Priority:** Medium  
-**Estimated Effort:** 1 hour  
+**Category:** Project Setup
+**Priority:** Medium
+**Estimated Effort:** 1 hour
 **Status:** Not Started
 
 ## Description

@@ -1,8 +1,8 @@
 # Task 05: API Client - Basic Structure
 
-**Category:** API Client Development  
-**Priority:** High  
-**Estimated Effort:** 3-4 hours  
+**Category:** API Client Development
+**Priority:** High
+**Estimated Effort:** 3-4 hours
 **Status:** Not Started
 
 ## Description

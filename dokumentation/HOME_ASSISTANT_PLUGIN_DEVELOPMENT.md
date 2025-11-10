@@ -1,6 +1,6 @@
 # Home Assistant Custom Integration Development Guide
 
-**Last Updated:** November 10, 2025  
+**Last Updated:** November 10, 2025
 **For:** Wiener Netze Smart Meter Integration Project
 
 ---
